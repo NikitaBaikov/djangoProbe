@@ -1,0 +1,12 @@
+.env
+*.pyc
+*.db
+*.pid
+*.save
+local_settings.py
+*.db3
+*.sqlite3
+*.log
+*/static
+*/bower_components
+*/media

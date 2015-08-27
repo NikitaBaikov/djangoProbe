@@ -1,0 +1,19 @@
+{% extends "transactions/base.html" %}
+
+{% block page %}
+
+	<h1> Детали сделки </h1>
+	
+	{% for obj in tr.object_set.all %}
+		<div class="block_style">
+			Название: {{ obj.object_name }} <br>
+			Количество: {{ obj.number }} <br>
+			Цена: {{ obj.price  }} <br>
+		</div>
+	{% endfor %}
+	
+	<form action="{% url 'transactions:edit' transaction_id %}" method="post">
+	{% csrf_token %}
+	    <button> Редактировать </button>
+	</form>
+{% endblock %}

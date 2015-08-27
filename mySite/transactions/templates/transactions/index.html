@@ -1,0 +1,13 @@
+{% extends "transactions/base.html" %}
+
+{% block page %}
+	{% if tr_list %}
+		<ul>
+			{% for t in tr_list %}
+				<li> <a href="{% url 'transactions:detail' t.id %}">{{ t.tr_name }}</a></li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p> Нет сделок </p>
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "transactions/base.html" %}
+
+{% block page %}
+<h1> Редактирование существующей сделки </h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form class="form-inline" method="post">
+	{% csrf_token %}
+	{% for form in forms %}
+		<div class="one-object">
+			{{ form.as_p }}
+		</div>
+	{% endfor %}
+	<br>
+	<button type="submit" class="btn btn-success">Сохранить</button>
+</form>
+{% endblock %}
