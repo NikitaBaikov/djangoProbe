@@ -7,6 +7,7 @@
 
 <form class="form-inline" method="post">
 	{% csrf_token %}
+	
 	{% for form in forms %}
 		<div class="one-object">
 			{{ form.as_p }}
