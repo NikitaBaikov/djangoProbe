@@ -1,3 +1,7 @@
+.form_as_table {
+	margin-bottom: 20px;
+}
+
 .block_style {
 	border: dashed 1px #634f36; /* Параметры рамки */
 	background: #fffff5; /* Цвет фона */

@@ -1,0 +1,48 @@
+{% extends "transactions/base.html" %}
+
+{% block head %}
+	<script type="text/javascript" src="/static/js/forms.js"></script>
+{% endblock %}
+
+{% block page %}
+<h1> Добавление новой сделки </h1>
+
+<div id="id_formset_div">
+	{{ myFormset.management_form }}
+
+	{% for form in myFormset %}
+		<div class='form_as_table'>
+			<table style="width: 100%; padding: 0px">
+				<tr>
+					<td>
+						<table class='table'>
+							{{ form.as_table }}
+						</table>
+					</td>
+					<td align="center" valign="top">
+						<span class="glyphicon glyphicon-remove-circle" style="font-size: 18px"></span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	{% endfor %}
+</div>
+
+<script>
+	$('#id_formset_div div').css("margin: 20px")
+</script>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<button type="submit" class="btn btn-success" >Сохранить</button>
+	
+	<button type="submit" class="btn btn-primary" id="add_form_btn">Добавить товар</button>
+	<script>
+		$('#add_form_btn').click(function() {
+			addForm("div.form_as_table:last", "form");
+		});
+
+		$(".glyphicon-remove-circle").click(function () {
+			return deleteForm(this, "form", "div.form_as_table");
+		});
+	</script>
+{% endblock %}

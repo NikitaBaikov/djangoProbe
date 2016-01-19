@@ -8,7 +8,7 @@ class Transaction(models.Model):
 		return self.tr_name
 
 
-class Object(models.Model):
+class TrObject(models.Model):
 	tr = models.ForeignKey(Transaction)
 	object_name = models.CharField('Товар', max_length=200)
 	number = models.IntegerField('Количество', default=0)

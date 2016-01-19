@@ -10,4 +10,8 @@
 	{% else %}
 		<p> Нет сделок </p>
 	{% endif %}
+	
+	<br>
+	<a href="{% url 'transactions:new_transaction' %}"> Добавить новую сделку </a>
+
 {% endblock %}

@@ -1,9 +1,9 @@
 from django.forms import ModelForm
-from .models import Object
+from .models import TrObject
 
-class ObjectForm(ModelForm):
+class TrObjectForm(ModelForm):
 	class Meta:
-		model = Object
+		model = TrObject
 		fields = ['object_name', 'number', 'price']
 
 	def __init__(self, *args, **kwargs):

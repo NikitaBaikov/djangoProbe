@@ -4,7 +4,7 @@ from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
 
 from .models import Transaction
-from .forms import ObjectForm
+from .forms import TrObjectForm
 
 def index (request):
 	tr_list = Transaction.objects.order_by('-pub_date')
@@ -36,7 +36,7 @@ def edit (request, transaction_id):
 		raise Http404
 
 	if request.method == "POST":
-		forms = [ObjectForm(prefix=obj.id, data=request.POST, instance=obj) for obj in tr.object_set.all()]
+		forms = [TrObjectForm(prefix=obj.id, data=request.POST, instance=obj) for obj in tr.object_set.all()]
 
 		ok = True
 		for form in forms:
@@ -48,7 +48,7 @@ def edit (request, transaction_id):
 			return redirect('transactions:detail', transaction_id=transaction_id)
 
 	template = loader.get_template('transactions/edit.html')
-	forms = [ObjectForm(prefix=obj.id, instance=obj) for obj in tr.object_set.all()]
+	forms = [TrObjectForm(prefix=obj.id, instance=obj) for obj in tr.object_set.all()]
 	
 	context = RequestContext(request, {
 		'tr': tr,
@@ -58,23 +58,15 @@ def edit (request, transaction_id):
 
 	return HttpResponse(template.render(context))
 
-"""
-def test (request):
-	try:
-		tr = Transaction.objects.get(pk = 1)
-	except Transaction.DoesNotExist:
-		raise Http404
-	
-	formset = formset_factory(ObjectForm, extra=2, can_delete=True)
-	custom_formset = formset(initial=[obj.__dict__ for obj in tr.object_set.all()])
+def new_transaction (request):
+	template = loader.get_template('transactions/new_transaction.html')
 
-	template = loader.get_template('transactions/test.html')
-	
+	TrObjectFormSet = formset_factory(TrObjectForm)
+	myFormset = TrObjectFormSet()
+
 	context = RequestContext(request, {
-		'tr': tr,
-		'formset' : custom_formset,
+		'myFormset' : myFormset
 	})
 
 	return HttpResponse(template.render(context))
-"""
 
