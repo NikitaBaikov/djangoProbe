@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block page %}
-<h1> Добавление новой сделки </h1>
+<h2> Добавление новой сделки </h2>
 
 <div id="id_formset_div">
 	{{ myFormset.management_form }}
@@ -38,7 +38,7 @@
 	<button type="submit" class="btn btn-primary" id="add_form_btn">Добавить товар</button>
 	<script>
 		$('#add_form_btn').click(function() {
-			addForm("div.form_as_table:last", "form");
+			addForm("#id_formset_div div:last", "form");
 		});
 
 		$(".glyphicon-remove-circle").click(function () {
