@@ -1,15 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
 
 from .models import Transaction
-from .forms import TrObjectForm
+from .forms import TrObjectForm, TrForm, MyBaseFormSet
 
-def index (request):
+def index (request, tr_event = ''):
 	tr_list = Transaction.objects.order_by('-pub_date')
 	template = loader.get_template('transactions/index.html')
 	context = RequestContext(request, {
+		'tr_event' : tr_event,
 		'tr_list': tr_list,
 	})
 	return HttpResponse(template.render(context))
@@ -59,14 +60,30 @@ def edit (request, transaction_id):
 	return HttpResponse(template.render(context))
 
 def new_transaction (request):
-	template = loader.get_template('transactions/new_transaction.html')
+	TrObjectFormSet = formset_factory(TrObjectForm, formset=MyBaseFormSet)
+	
+	if request.method == 'POST':	
 
-	TrObjectFormSet = formset_factory(TrObjectForm)
-	myFormset = TrObjectFormSet()
+		myTrForm = TrForm(request.POST)
+		myFormset = TrObjectFormSet(request.POST)
+		
+		if myFormset.is_valid() and myTrForm.is_valid():
+			myTrForm.save()
+			# TODO прикрепить товары
+	
+			return redirect('transactions:index', tr_event = '#add')
 
-	context = RequestContext(request, {
-		'myFormset' : myFormset
-	})
+		return redirect('transactions:index')
 
-	return HttpResponse(template.render(context))
+	else:
+		template = loader.get_template('transactions/new_transaction.html')
 
+		myTrForm = TrForm()
+		myFormset = TrObjectFormSet()
+
+		context = RequestContext(request, {
+			'myTrForm' : myTrForm,
+			'myFormset' : myFormset
+		})
+
+		return HttpResponse(template.render(context))

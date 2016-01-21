@@ -1,7 +1,7 @@
 from django.db import models
 
 class Transaction(models.Model):
-	tr_name = models.CharField('Сделка', max_length=200)
+	tr_name = models.CharField('Название', max_length=200)
 	pub_date = models.DateTimeField('Дата сделки')
 
 	def __str__ (self):

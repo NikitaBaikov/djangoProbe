@@ -1,6 +1,12 @@
 {% extends "transactions/base.html" %}
 
 {% block page %}
+	{% if tr_event == "#add"%}
+		<div class="alert alert-success">
+  			Сделка успешно добавлена.
+		</div>
+	{% endif %}
+
 	{% if tr_list %}
 		<ul>
 			{% for t in tr_list %}
