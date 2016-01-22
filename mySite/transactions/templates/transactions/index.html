@@ -8,11 +8,11 @@
 	{% endif %}
 
 	{% if tr_list %}
-		<ul>
-			{% for t in tr_list %}
-				<li> <a href="{% url 'transactions:detail' t.id %}">{{ t.tr_name }}</a></li>
+		<table class = "table table-striped">
+			{% for tr in tr_list %}
+				<tr> <td> <a href="{% url 'transactions:detail' tr.id %}">{{ tr.tr_name }}</a> </td></tr>
 			{% endfor %}
-		</ul>
+		</table>
 	{% else %}
 		<p> Нет сделок </p>
 	{% endif %}

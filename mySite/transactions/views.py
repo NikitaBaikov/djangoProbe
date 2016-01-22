@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
+from django.forms.models import model_to_dict
 
 from .models import Transaction
 from .forms import TrObjectForm, TrForm, MyBaseFormSet
@@ -23,8 +24,13 @@ def detail (request, transaction_id):
 
 	template = loader.get_template('transactions/detail.html')
 
+	tr_info = TrForm(data=model_to_dict(tr))
+	print (tr.trobject_set.all())
+	tr_objects_info = [TrObjectForm(data = model_to_dict(obj)) for obj in tr.trobject_set.all()]
+	print (tr_objects_info)
 	context = RequestContext(request, {
-		'tr': tr,
+		'tr_info': tr_info,
+		'tr_objects_info': tr_objects_info,
 		'transaction_id': transaction_id,
 	})
 
@@ -61,21 +67,31 @@ def edit (request, transaction_id):
 
 def new_transaction (request):
 	TrObjectFormSet = formset_factory(TrObjectForm, formset=MyBaseFormSet)
-	
+
+	# Обработка формы	
 	if request.method == 'POST':	
 
 		myTrForm = TrForm(request.POST)
 		myFormset = TrObjectFormSet(request.POST)
 		
 		if myFormset.is_valid() and myTrForm.is_valid():
-			myTrForm.save()
-			# TODO прикрепить товары
+			tr_instance = myTrForm.save()
+			
+			#  Надо прикрепить товары
+			for form in myFormset:
+				# Данные неполны, нужен еще ключ на саму сделку. Поэтому commit = False
+				instance = form.save(commit = False)
+
+				# Вручную прикрепляем к нашей сделке
+				tr_instance.trobject_set.add(instance)
 	
+			# В случае успешной обработки выводим сообщение об успехе
 			return redirect('transactions:index', tr_event = '#add')
 
 		return redirect('transactions:index')
 
 	else:
+		# Переход на страницу с пустой формой
 		template = loader.get_template('transactions/new_transaction.html')
 
 		myTrForm = TrForm()

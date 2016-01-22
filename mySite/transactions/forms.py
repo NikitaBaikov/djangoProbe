@@ -8,6 +8,7 @@ class TrObjectForm(ModelForm):
 		model = TrObject
 		fields = ['object_name', 'number', 'price']
 
+	# Добавим к полям класс form-control (нужен для bootstrap)
 	def __init__(self, *args, **kwargs):
 		super(ModelForm, self).__init__(*args, **kwargs)
 		for field in self.fields:

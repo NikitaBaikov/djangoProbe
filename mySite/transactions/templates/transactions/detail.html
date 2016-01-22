@@ -2,18 +2,26 @@
 
 {% block page %}
 
-	<h1> Детали сделки </h1>
+	<h2> Детали сделки </h2>
 	
-	{% for obj in tr.object_set.all %}
-		<div class="block_style">
-			Название: {{ obj.object_name }} <br>
-			Количество: {{ obj.number }} <br>
-			Цена: {{ obj.price  }} <br>
+	<div class="highlighted_div_gray">
+		{% for field in tr_info %}
+			{{ field.label }} : {{ field.data }} <br>
+		{% endfor %}
+	</div>
+	
+	<h3> Прикрепленные товары </h3>	
+
+	{% for info_obj in tr_objects_info %}
+		<div class="highlighted_div_gray">
+			{% for field in info_obj %}
+				{{ field.label }} : {{ field.data }} <br>
+			{% endfor %}
 		</div>
 	{% endfor %}
 	
 	<form action="{% url 'transactions:edit' transaction_id %}" method="post">
 	{% csrf_token %}
-	    <button> Редактировать </button>
+	    <button class="btn btn-primary"> Редактировать </button>
 	</form>
 {% endblock %}
