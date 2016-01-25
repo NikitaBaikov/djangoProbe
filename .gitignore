@@ -11,3 +11,4 @@ local_settings.py
 */bower_components
 */media
 *.swp
+*/datetimewidget
