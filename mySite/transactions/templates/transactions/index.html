@@ -1,23 +1,55 @@
 {% extends "transactions/base.html" %}
 
 {% block page %}
-	{% if tr_event == "#add"%}
+	{% if tr_event == "add"%}
 		<div class="alert alert-success">
   			Сделка успешно добавлена.
 		</div>
 	{% endif %}
 
-	{% if tr_list %}
-		<table class = "table table-striped">
-			{% for tr in tr_list %}
-				<tr> <td> <a href="{% url 'transactions:detail' tr.id %}">{{ tr.tr_name }}</a> </td></tr>
+	<h2> История сделок </h2>
+	{% if tr_list_info %}
+		<p> Нажмите на сделку, чтобы увидеть подробную информацию. </p>
+		<table class = "table table-striped table-hover" id = "tr_table_clickable">
+			<tr href=''>
+				{% for k,v in labels.items %}
+					{% if k != 'id' %}
+						<th>
+							{{ v }}
+						</th>
+					{% endif %}
+				{% endfor %}
+				
+				<th style="text-align: center">
+					Удалить
+				</th>
+			</tr>
+
+			{% for tr_info in tr_list_info %}
+				<tr href="{% url 'transactions:detail' tr_info.id %}">
+					{% for k,v in tr_info.items %}
+						{% if k != 'id' %}
+							<td>
+								{{ v }}
+							</td>
+						{% endif %}
+					{% endfor %}
+					
+					<td align="center">
+						<span class="glyphicon glyphicon-remove TrRemove"></span>
+					</td>
+				</tr>
 			{% endfor %}
 		</table>
+		
+		<script>
+			$('#tr_table_clickable').on( 'click', 'tbody tr', function () {
+				window.location.href = $(this).attr('href');
+			});
+
+		</script>
+
 	{% else %}
 		<p> Нет сделок </p>
 	{% endif %}
-	
-	<br>
-	<a href="{% url 'transactions:new_transaction' %}"> Добавить новую сделку </a>
-
 {% endblock %}

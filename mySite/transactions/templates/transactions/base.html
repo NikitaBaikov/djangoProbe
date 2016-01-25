@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
 {% block menu %}
-	<h1> Меню </h1>
-	<a href="{% url 'transactions:index' %}"> К списку сделок </a>
+	{% load transactions_extras %}
+
+	{% url 'transactions:index' as index %}
+	{% url 'transactions:new_transaction' as new_transaction %}
+
+	<div style = "margin-bottom: 30px">
+		<ul class="nav nav-pills">
+			<li role="presentation" class="{% active request index %}"> <a href="{{ index }}"> К списку сделок </a></li>
+			<li role="presentation" class="{% active request new_transaction %}"> <a href="{{ new_transaction }}"> Новая сделка </a></li>
+		</ul>
+	</div>
 {% endblock %}
 
 {% block page %}

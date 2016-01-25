@@ -17,8 +17,8 @@ class TrObjectForm(ModelForm):
 class TrForm(ModelForm):
 	class Meta:
 		model = Transaction
-		fields = ['tr_name', 'pub_date']
-		widgets = {'pub_date': DateTimeWidget(attrs={'id':'testtest'}, usel10n=True, bootstrap_version=3)}
+		fields = ['pub_date', 'tr_name']
+		widgets = {'pub_date': DateTimeWidget(attrs={'id':'datetime_id'}, usel10n=True, bootstrap_version=3)}
 
 	def __init__(self, *args, **kwargs):
 		

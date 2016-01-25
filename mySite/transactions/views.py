@@ -3,18 +3,30 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext, loader
 from django.forms.formsets import formset_factory
 from django.forms.models import model_to_dict
+from django.core.urlresolvers import reverse
 
 from .models import Transaction
 from .forms import TrObjectForm, TrForm, MyBaseFormSet
 
-def index (request, tr_event = ''):
-	tr_list = Transaction.objects.order_by('-pub_date')
-	template = loader.get_template('transactions/index.html')
-	context = RequestContext(request, {
-		'tr_event' : tr_event,
-		'tr_list': tr_list,
-	})
-	return HttpResponse(template.render(context))
+def index (request):
+	if request.method == "GET":
+		tr_event = request.GET.get('tr_event', '')	
+
+		tr_list = Transaction.objects.order_by('-pub_date')
+		tr_list_info =[model_to_dict(obj) for obj in tr_list]
+		labels = { k : Transaction._meta.get_field(k).verbose_name for k in model_to_dict(tr_list[0]).keys()}
+		
+		# Информация о всех сделках
+		tr_info = [TrForm(data = model_to_dict(obj)) for obj in Transaction.objects.order_by('-pub_date')]
+
+		template = loader.get_template('transactions/index.html')
+		context = RequestContext(request, {
+			'tr_event' : tr_event,
+			'tr_list_info' : tr_list_info,
+			'labels' : labels,
+		})
+		return HttpResponse(template.render(context))
+
 
 def detail (request, transaction_id):
 	try:
@@ -25,9 +37,7 @@ def detail (request, transaction_id):
 	template = loader.get_template('transactions/detail.html')
 
 	tr_info = TrForm(data=model_to_dict(tr))
-	print (tr.trobject_set.all())
 	tr_objects_info = [TrObjectForm(data = model_to_dict(obj)) for obj in tr.trobject_set.all()]
-	print (tr_objects_info)
 	context = RequestContext(request, {
 		'tr_info': tr_info,
 		'tr_objects_info': tr_objects_info,
@@ -35,6 +45,7 @@ def detail (request, transaction_id):
 	})
 
 	return HttpResponse(template.render(context))
+
 
 def edit (request, transaction_id):
 	try:
@@ -65,6 +76,7 @@ def edit (request, transaction_id):
 
 	return HttpResponse(template.render(context))
 
+
 def new_transaction (request):
 	TrObjectFormSet = formset_factory(TrObjectForm, formset=MyBaseFormSet)
 
@@ -86,9 +98,9 @@ def new_transaction (request):
 				tr_instance.trobject_set.add(instance)
 	
 			# В случае успешной обработки выводим сообщение об успехе
-			return redirect('transactions:index', tr_event = '#add')
+			return HttpResponseRedirect(reverse('transactions:index') + '?tr_event=add')
 
-		return redirect('transactions:index')
+		return redirect('transactions:new_transaction')
 
 	else:
 		# Переход на страницу с пустой формой
@@ -101,5 +113,5 @@ def new_transaction (request):
 			'myTrForm' : myTrForm,
 			'myFormset' : myFormset
 		})
-
+		
 		return HttpResponse(template.render(context))
