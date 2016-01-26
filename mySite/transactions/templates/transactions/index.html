@@ -7,6 +7,13 @@
 		</div>
 	{% endif %}
 
+	{% if tr_event == "delete"%}
+		<div class="alert alert-success">
+  			Сделка успешно удалена.
+		</div>
+	{% endif %}
+
+
 	<h2> История сделок </h2>
 	{% if tr_list_info %}
 		<p> Нажмите на сделку, чтобы увидеть подробную информацию. </p>
@@ -21,7 +28,7 @@
 				{% endfor %}
 				
 				<th style="text-align: center">
-					Удалить
+					Удалить сделку
 				</th>
 			</tr>
 
@@ -36,7 +43,7 @@
 					{% endfor %}
 					
 					<td align="center">
-						<span class="glyphicon glyphicon-remove TrRemove"></span>
+						<a href="{% url 'transactions:delete' tr_info.id %}" style="color: #000000"><span class="glyphicon glyphicon-remove TrRemove"></span></a>
 					</td>
 				</tr>
 			{% endfor %}
@@ -46,7 +53,6 @@
 			$('#tr_table_clickable').on( 'click', 'tbody tr', function () {
 				window.location.href = $(this).attr('href');
 			});
-
 		</script>
 
 	{% else %}

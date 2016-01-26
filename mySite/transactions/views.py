@@ -27,6 +27,17 @@ def index (request):
 		})
 		return HttpResponse(template.render(context))
 
+def delete (request, transaction_id):
+	try:
+		tr = Transaction.objects.get(pk=transaction_id)
+	except Transaction.DoesNotExist:
+		raise Http404
+	
+	tr.delete()
+	
+	# В случае успешной обработки выводим сообщение об удалении
+	return HttpResponseRedirect(reverse('transactions:index') + '?tr_event=delete')
+
 
 def detail (request, transaction_id):
 	try:
