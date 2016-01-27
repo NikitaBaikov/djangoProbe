@@ -13,7 +13,6 @@
 		</div>
 	{% endif %}
 
-
 	<h2> История сделок </h2>
 	{% if tr_list_info %}
 		<p> Нажмите на сделку, чтобы увидеть подробную информацию. </p>
@@ -43,16 +42,25 @@
 					{% endfor %}
 					
 					<td align="center">
-						<a href="{% url 'transactions:delete' tr_info.id %}" style="color: #000000"><span class="glyphicon glyphicon-remove TrRemove"></span></a>
+						<a href="{% url 'transactions:delete' tr_info.id %}" class="TrRemove">
+							 <span class="glyphicon glyphicon-remove"></span>
+						</a>
 					</td>
 				</tr>
 			{% endfor %}
 		</table>
-		
+
 		<script>
-			$('#tr_table_clickable').on( 'click', 'tbody tr', function () {
-				window.location.href = $(this).attr('href');
+			// TODO Перекрытие скриптов?
+			$('#tr_table_clickable').on( 'click', 'tbody tr td:not(:last)', function () {
+				window.location.href = $(this).parent().attr('href');
 			});
+	        
+			$('.TrRemove').confirm({
+				text: "Вы действительно хотите удалить эту сделку?",
+				confirmButton: "Да",
+			    cancelButton: "Нет"
+			});	
 		</script>
 
 	{% else %}

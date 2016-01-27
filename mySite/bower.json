@@ -2,6 +2,7 @@
   "name": "mysite",
   "version": "0.0.1",
   "dependencies": {
-    "bootstrap": "~3.3.5"
+    "bootstrap": "~3.3.5",
+    "jquery-confirm": "~2.5.2"
   }
 }

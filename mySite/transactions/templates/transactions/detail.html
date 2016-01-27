@@ -3,6 +3,12 @@
 {% block page %}
 
 	<h2> Детали сделки </h2>
+
+	{% if tr_event == "change"%}
+		<div class="alert alert-success">
+  			Сделка успешно изменена.
+		</div>
+	{% endif %}
 	
 	<div class="highlighted_div_gray">
 		{% for field in tr_info %}
@@ -20,8 +26,7 @@
 		</div>
 	{% endfor %}
 	
-	<form action="{% url 'transactions:edit' transaction_id %}" method="post">
-	{% csrf_token %}
+	<form action="{% url 'transactions:edit' transaction_id %}" method="get">
 	    <button class="btn btn-primary"> Редактировать </button>
-	</form>
+	</form> 
 {% endblock %}

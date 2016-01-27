@@ -13,11 +13,16 @@ def index (request):
 		tr_event = request.GET.get('tr_event', '')	
 
 		tr_list = Transaction.objects.order_by('-pub_date')
-		tr_list_info =[model_to_dict(obj) for obj in tr_list]
-		labels = { k : Transaction._meta.get_field(k).verbose_name for k in model_to_dict(tr_list[0]).keys()}
 		
-		# Информация о всех сделках
-		tr_info = [TrForm(data = model_to_dict(obj)) for obj in Transaction.objects.order_by('-pub_date')]
+		# TODO Зафиксировать порядок вывода, но сохранить id		
+		
+		# Словари для всех сделок (включая id)
+		tr_list_info =[model_to_dict(obj) for obj in tr_list]
+	
+		# Словарь для шапки таблицы
+		labels = { k : Transaction._meta.get_field(k).verbose_name for k in 
+			[getattr(field, 'name') for field in Transaction._meta.fields]
+		}
 
 		template = loader.get_template('transactions/index.html')
 		context = RequestContext(request, {
@@ -45,17 +50,22 @@ def detail (request, transaction_id):
 	except Transaction.DoesNotExist:
 		raise Http404
 
-	template = loader.get_template('transactions/detail.html')
+	if request.method == "GET":
+		tr_event = request.GET.get('tr_event', '')	
 
-	tr_info = TrForm(data=model_to_dict(tr))
-	tr_objects_info = [TrObjectForm(data = model_to_dict(obj)) for obj in tr.trobject_set.all()]
-	context = RequestContext(request, {
-		'tr_info': tr_info,
-		'tr_objects_info': tr_objects_info,
-		'transaction_id': transaction_id,
-	})
+		template = loader.get_template('transactions/detail.html')
 
-	return HttpResponse(template.render(context))
+		# У формы имеется порядок отображения полей, поэтому воспользуемся ей, а не словарем
+		tr_info = TrForm(data=model_to_dict(tr))
+		tr_objects_info = [TrObjectForm(data = model_to_dict(obj)) for obj in tr.trobject_set.all()]
+		context = RequestContext(request, {
+			'tr_event' : tr_event,
+			'tr_info': tr_info,
+			'tr_objects_info': tr_objects_info,
+			'transaction_id': transaction_id,
+		})
+
+		return HttpResponse(template.render(context))
 
 
 def edit (request, transaction_id):
@@ -64,29 +74,54 @@ def edit (request, transaction_id):
 	except Transaction.DoesNotExist:
 		raise Http404
 
-	if request.method == "POST":
-		forms = [TrObjectForm(prefix=obj.id, data=request.POST, instance=obj) for obj in tr.object_set.all()]
-
-		ok = True
-		for form in forms:
-			if form.is_valid():
-				form.save()
-			else:
-				ok = False
-		if ok:
-			return redirect('transactions:detail', transaction_id=transaction_id)
-
-	template = loader.get_template('transactions/edit.html')
-	forms = [TrObjectForm(prefix=obj.id, instance=obj) for obj in tr.object_set.all()]
+	TrObjectFormSet = formset_factory(TrObjectForm, formset=MyBaseFormSet, extra=0)
 	
-	context = RequestContext(request, {
-		'tr': tr,
-		'transaction_id': transaction_id,
-		'forms' : forms,
-	})
+	# Обработка формы	
+	if request.method == 'POST':	
 
-	return HttpResponse(template.render(context))
+		# Прикрепляемся у уже существующей сделке
+		myTrForm = TrForm(request.POST, instance=tr)
 
+		myFormset = TrObjectFormSet(request.POST)
+
+		# TODO has_changed() всегда true? 
+		print ([form.has_changed() for form in myFormset])	
+	
+		if myFormset.is_valid() and myTrForm.is_valid():
+			tr_instance = myTrForm.save()
+
+			# Удаляем все старые товары
+			tr.trobject_set.all().delete()
+
+			#  Надо прикрепить товары
+			for form in myFormset:
+				# Данные неполны, нужен еще ключ на саму сделку. Поэтому commit = False
+				instance = form.save(commit = False)
+				
+				# Вручную прикрепляем к нашей сделке товары из формы
+				tr_instance.trobject_set.add(instance)
+	
+			# В случае успешной обработки выводим сообщение об изменении
+			return HttpResponseRedirect(reverse('transactions:detail', 
+				kwargs = {'transaction_id' : transaction_id}) + '?tr_event=change')
+
+		return HttpResponseRedirect(reverse('transactions:edit', 
+			kwargs = {'transaction_id' : transaction_id}))
+
+	else:
+		# Переход на страницу с неотредактированной формой
+		template = loader.get_template('transactions/edit.html')
+
+		myTrForm = TrForm(initial = model_to_dict(tr))
+		myFormset = TrObjectFormSet(initial = [model_to_dict(obj) for obj in tr.trobject_set.all()])
+
+		context = RequestContext(request, {
+			'myTrForm' : myTrForm,
+			'myFormset' : myFormset
+		})
+		
+		return HttpResponse(template.render(context))
+	
 
 def new_transaction (request):
 	TrObjectFormSet = formset_factory(TrObjectForm, formset=MyBaseFormSet)

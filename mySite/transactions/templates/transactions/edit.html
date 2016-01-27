@@ -1,19 +1,58 @@
 {% extends "transactions/base.html" %}
 
+{% block head %}
+	{{ myTrForm.media }}
+	<script type="text/javascript" src="/static/js/forms.js"></script>
+{% endblock %}
+
 {% block page %}
-<h1> Редактирование существующей сделки </h1>
+	<h2> Редактирование существующей сделки </h2>
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-<form class="form-inline" method="post">
-	{% csrf_token %}
+	<form method="post">
+		{% csrf_token %}
 	
-	{% for form in forms %}
-		<div class="one-object">
-			{{ form.as_p }}
+		<div id="id_formset_div">
+			<div>
+				<table class="table" style="width: 50%">
+					{{ myTrForm.as_table }}
+				</table> 
+			</div>
+		
+			{{ myFormset.management_form }}
+		
+			{% for form in myFormset %}
+				<div class='form_as_table'>
+					<table style="width: 100%; padding: 0px">
+						<tr>
+							<td>
+								<table class='table'>
+									{{ form.as_table }}
+								</table>
+							</td>
+							<td align="center" valign="top">
+								<span class="glyphicon glyphicon-remove TrObjectRemove" ></span>
+							</td>
+						</tr>
+					</table>
+				</div>
+			{% endfor %}
 		</div>
-	{% endfor %}
-	<br>
-	<button type="submit" class="btn btn-success">Сохранить</button>
-</form>
+	
+		<script>
+			$('#id_formset_div div').css("margin: 20px")
+		</script>
+	
+		<button type="submit" class="btn btn-success" >Сохранить</button>
+		
+		<button type="button" class="btn btn-primary" id="add_form_btn">Добавить товар</button>
+		<script>
+			$('#add_form_btn').click(function() {
+				addForm("#id_formset_div div:last", "form");
+			});
+	
+			$(".TrObjectRemove").click(function () {
+				return deleteForm(this, "form", "div.form_as_table");
+			});
+		</script>
+	</form>
 {% endblock %}
