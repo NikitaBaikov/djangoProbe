@@ -5,7 +5,7 @@ from django.forms.formsets import formset_factory
 from django.forms.models import model_to_dict
 from django.core.urlresolvers import reverse
 
-from .models import Transaction
+from .models import Transaction, TrObject
 from .forms import TrObjectForm, TrForm, MyBaseFormSet
 
 def index (request):
@@ -14,7 +14,9 @@ def index (request):
 
 		tr_list = Transaction.objects.order_by('-pub_date')
 		
-		# TODO Зафиксировать порядок вывода, но сохранить id		
+		# Задает поля сделки и их порядок для вывода на этой странице
+		# Доступ к ним через фильтр в шаблоне		
+		fields = ['tr_name', 'pub_date']
 		
 		# Словари для всех сделок (включая id)
 		tr_list_info =[model_to_dict(obj) for obj in tr_list]
@@ -27,8 +29,9 @@ def index (request):
 		template = loader.get_template('transactions/index.html')
 		context = RequestContext(request, {
 			'tr_event' : tr_event,
-			'tr_list_info' : tr_list_info,
+			'fields' : fields,
 			'labels' : labels,
+			'tr_list_info' : tr_list_info,
 		})
 		return HttpResponse(template.render(context))
 
@@ -37,9 +40,11 @@ def delete (request, transaction_id):
 		tr = Transaction.objects.get(pk=transaction_id)
 	except Transaction.DoesNotExist:
 		raise Http404
-	
+
+	# Удаляем объект	
 	tr.delete()
 	
+	# Делаем redirect на index
 	# В случае успешной обработки выводим сообщение об удалении
 	return HttpResponseRedirect(reverse('transactions:index') + '?tr_event=delete')
 
@@ -55,13 +60,34 @@ def detail (request, transaction_id):
 
 		template = loader.get_template('transactions/detail.html')
 
-		# У формы имеется порядок отображения полей, поэтому воспользуемся ей, а не словарем
-		tr_info = TrForm(data=model_to_dict(tr))
-		tr_objects_info = [TrObjectForm(data = model_to_dict(obj)) for obj in tr.trobject_set.all()]
+		# Задают поля сделки и ее товаров и их порядок для вывода на этой странице
+		# Доступ к ним через фильтр в шаблоне		
+		tr_fields = ['tr_name', 'pub_date']
+		tr_obj_fields = ['object_name', 'number', 'price']
+	
+		# Словари для сделки и ее товаров
+		tr_info = model_to_dict(tr)
+		tr_obj_info = [model_to_dict(obj) for obj in tr.trobject_set.all()]
+
+		# Словари для названий полей
+		tr_labels = { k : Transaction._meta.get_field(k).verbose_name for k in 
+			[getattr(field, 'name') for field in Transaction._meta.fields]
+		}
+		tr_obj_labels = { k : TrObject._meta.get_field(k).verbose_name for k in 
+			[getattr(field, 'name') for field in TrObject._meta.fields]
+		}
+
+		print(tr_obj_info)
+		print(tr_obj_labels)
+
 		context = RequestContext(request, {
 			'tr_event' : tr_event,
+			'tr_fields' : tr_fields,
+			'tr_obj_fields' : tr_obj_fields,
+			'tr_labels' : tr_labels,
+			'tr_obj_labels' : tr_obj_labels,
 			'tr_info': tr_info,
-			'tr_objects_info': tr_objects_info,
+			'tr_obj_info': tr_obj_info,
 			'transaction_id': transaction_id,
 		})
 

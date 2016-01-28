@@ -1,7 +1,7 @@
 {% extends "transactions/base.html" %}
 
 {% block page %}
-
+	{% load transactions_extras %}
 	<h2> Детали сделки </h2>
 
 	{% if tr_event == "change"%}
@@ -11,17 +11,17 @@
 	{% endif %}
 	
 	<div class="highlighted_div_gray">
-		{% for field in tr_info %}
-			{{ field.label }} : {{ field.data }} <br>
+		{% for field in tr_fields %}
+			{{ tr_labels|get_dict_item:field }} : {{ tr_info|get_dict_item:field }} <br>
 		{% endfor %}
 	</div>
 	
 	<h3> Прикрепленные товары </h3>	
 
-	{% for info_obj in tr_objects_info %}
+	{% for tr_obj in tr_obj_info %}
 		<div class="highlighted_div_gray">
-			{% for field in info_obj %}
-				{{ field.label }} : {{ field.data }} <br>
+			{% for field in tr_obj_fields %}
+				{{ tr_obj_labels|get_dict_item:field }} : {{ tr_obj|get_dict_item:field }} <br>
 			{% endfor %}
 		</div>
 	{% endfor %}

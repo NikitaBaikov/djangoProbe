@@ -1,6 +1,8 @@
 {% extends "transactions/base.html" %}
 
 {% block page %}
+	{% load transactions_extras %}
+	
 	{% if tr_event == "add"%}
 		<div class="alert alert-success">
   			Сделка успешно добавлена.
@@ -18,12 +20,10 @@
 		<p> Нажмите на сделку, чтобы увидеть подробную информацию. </p>
 		<table class = "table table-striped table-hover" id = "tr_table_clickable">
 			<tr href=''>
-				{% for k,v in labels.items %}
-					{% if k != 'id' %}
+				{% for field in fields %}
 						<th>
-							{{ v }}
+							{{ labels|get_dict_item:field }}
 						</th>
-					{% endif %}
 				{% endfor %}
 				
 				<th style="text-align: center">
@@ -33,12 +33,10 @@
 
 			{% for tr_info in tr_list_info %}
 				<tr href="{% url 'transactions:detail' tr_info.id %}">
-					{% for k,v in tr_info.items %}
-						{% if k != 'id' %}
+					{% for field in fields %}
 							<td>
-								{{ v }}
+								{{ tr_info|get_dict_item:field }}
 							</td>
-						{% endif %}
 					{% endfor %}
 					
 					<td align="center">
