@@ -77,9 +77,6 @@ def detail (request, transaction_id):
 			[getattr(field, 'name') for field in TrObject._meta.fields]
 		}
 
-		print(tr_obj_info)
-		print(tr_obj_labels)
-
 		context = RequestContext(request, {
 			'tr_event' : tr_event,
 			'tr_fields' : tr_fields,
