@@ -18,38 +18,39 @@
 	<h2> История сделок </h2>
 	{% if tr_list_info %}
 		<p> Нажмите на сделку, чтобы увидеть подробную информацию. </p>
-		<table class = "table table-striped table-hover" id = "tr_table_clickable">
-			<tr href=''>
-				{% for field in fields %}
-						<th>
-							{{ labels|get_dict_item:field }}
-						</th>
-				{% endfor %}
-				
-				<th style="text-align: center">
-					Удалить сделку
-				</th>
-			</tr>
-
-			{% for tr_info in tr_list_info %}
-				<tr href="{% url 'transactions:detail' tr_info.id %}">
+		<table class = "table table-striped table-hover">
+			<tbody>
+				<tr href='#'>
 					{% for field in fields %}
-							<td>
-								{{ tr_info|get_dict_item:field }}
-							</td>
+							<th>
+								{{ labels|get_dict_item:field }}
+							</th>
 					{% endfor %}
 					
-					<td align="center">
-						<span class="glyphicon glyphicon-remove TrRemove" href="{% url 'transactions:delete' tr_info.id %}"></span>
-					</td>
+					<th style="text-align: center">
+						Удалить сделку
+					</th>
 				</tr>
-			{% endfor %}
+	
+				{% for tr_info in tr_list_info %}
+					<tr >
+						{% for field in fields %}
+								<td href="{% url 'transactions:detail' tr_info.id %}" class="table_clickable_td">
+									{{ tr_info|get_dict_item:field }}
+								</td>
+						{% endfor %}
+						
+						<td align="center" href="{% url 'transactions:detail' tr_info.id %}" class="table_clickable_td">
+							<span class="glyphicon glyphicon-remove TrRemove" href="{% url 'transactions:delete' tr_info.id %}"></span>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
 		</table>
 
 		<script>
-			// TODO Перекрытие скриптов?
-			$('#tr_table_clickable tbody tr td:not(:last)').on('click', function() {
-				window.location.href = $(this).parent().attr('href');
+			$('.table_clickable_td').on('click', function() {
+				window.location.href = $(this).attr('href');
 			});
 
 			$(".TrRemove").click(function() {
@@ -62,6 +63,7 @@
 						window.location.href = d;
 					}
 				});
+				return false;
 			});
 		</script>
 
